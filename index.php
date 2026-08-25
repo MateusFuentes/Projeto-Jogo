@@ -152,7 +152,6 @@ unset($_SESSION['ultimoResultado']);
             font-size: 1.2rem;
             text-align: center;
             border: 1px solid #b88d52;
-            background-image: linear-gradient(rgba(32,22,15,0.38), rgba(32,22,15,0.55)), url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80');
             background-size: cover;
             background-position: center;
         }
@@ -332,7 +331,7 @@ unset($_SESSION['ultimoResultado']);
 
                 <div class="conteudo">
                     <div>
-                        <div class="imagem" title="Cena atual"></div>
+                        <div class="imagem" title="Cena atual" style="background-image: linear-gradient(rgba(32,22,15,0.38), rgba(32,22,15,0.55)), url('<?= htmlspecialchars($cena->getImagem()) ?>');"></div>
                         <h2><?= htmlspecialchars($cena->getTitulo()) ?></h2>
                         <p class="texto"><?= htmlspecialchars($cena->getDescricao()) ?></p>
 

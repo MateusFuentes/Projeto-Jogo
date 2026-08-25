@@ -121,7 +121,7 @@ class Game
     private function definirCenas(): array
     {
         return [
-            'inicio' => new Cena('inicio', 'Capela da Aurora', 'Você acorda em uma capela antiga, com o cheiro de velas apagadas e pedra úmida no ar. A luz do amanhecer entra pela janela quebrada e revela um reino em silêncio, como se o mundo inteiro estivesse esperando por uma decisão. O sino da torre ecoa ao longe, e você entende que a missão não é apenas sobreviver, mas recuperar a coragem que o povo perdeu.', 'capela.jpg', 'normal', 'bosque', [
+            'inicio' => new Cena('inicio', 'Capela da Aurora', 'Você acorda em uma capela antiga, com o cheiro de velas apagadas e pedra úmida no ar. A luz do amanhecer entra pela janela quebrada e revela um reino em silêncio, como se o mundo inteiro estivesse esperando por uma decisão. O sino da torre ecoa ao longe, e você entende que a missão não é apenas sobreviver, mas recuperar a coragem que o povo perdeu.', 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1200&q=80', 'normal', 'bosque', [
                 'seguir_luz' => [
                     'titulo' => 'Seguir a luz do altar',
                     'descricao' => 'Você se entrega ao brilho sagrado do altar, sente o calor da fé em suas mãos e escolhe o caminho mais seguro, mesmo que o destino ainda esteja oculto pela névoa.',
@@ -155,7 +155,7 @@ class Game
                     'mensagemFalha' => 'A passagem sombria se fecha sobre você, e por um momento a escuridão parece mais viva do que qualquer criatura do reino.',
                 ],
             ]),
-            'bosque' => new Cena('bosque', 'Bosque da Bruma', 'Você atravessa um bosque fechado, onde as árvores se curvam como antigas sentinelas e a névoa parece respirar junto com você. Ao longe, entre os troncos, um lobo enorme o observa com olhos brilhantes, sem medo nem desejo de fugir. O mundo parece abafado, como se o próprio ar estivesse esperando a sua próxima decisão.', 'bosque.jpg', 'desafio', 'ponte', [
+            'bosque' => new Cena('bosque', 'Bosque da Bruma', 'Você atravessa um bosque fechado, onde as árvores se curvam como antigas sentinelas e a névoa parece respirar junto com você. Ao longe, entre os troncos, um lobo enorme o observa com olhos brilhantes, sem medo nem desejo de fugir. O mundo parece abafado, como se o próprio ar estivesse esperando a sua próxima decisão.', 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80', 'desafio', 'ponte', [
                 'atacar_lobo' => [
                     'titulo' => 'Atacar o lobo',
                     'descricao' => 'Com a espada firme na mão, você avança contra o lobo antes que ele dê o primeiro salto, ouvindo o estalo seco das folhas sob seus pés.',
@@ -205,7 +205,7 @@ class Game
                     'mensagemFalha' => 'O rastro te leva até uma caverna esquecida, onde o eco dos passos parece ser o único som vivo no lugar.',
                 ],
             ]),
-            'ponte' => new Cena('ponte', 'Ponte do Abismo', 'A ponte de pedra cruza um abismo negro e profundo, onde o vento sobe como um suspiro de morte. Cada faixa de madeira e cada corrimão enferrujado tremem sob seus pés, e a distância entre o mundo conhecido e o desconhecido parece se abrir com cada passo. O céu acima está pálido, mas o vazio abaixo parece ter memória do que perdeu.', 'ponte.jpg', 'desafio', 'vila', [
+            'ponte' => new Cena('ponte', 'Ponte do Abismo', 'A ponte de pedra cruza um abismo negro e profundo, onde o vento sobe como um suspiro de morte. Cada faixa de madeira e cada corrimão enferrujado tremem sob seus pés, e a distância entre o mundo conhecido e o desconhecido parece se abrir com cada passo. O céu acima está pálido, mas o vazio abaixo parece ter memória do que perdeu.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80', 'desafio', 'vila', [
                 'correr_rapido' => [
                     'titulo' => 'Correr rapidamente',
                     'descricao' => 'Você se lança na travessia com toda a velocidade que o medo permite, sentindo a ponte tremer sob o peso do seu corpo e do abismo abaixo.',
@@ -255,7 +255,7 @@ class Game
                     'mensagemFalha' => 'A ponte quebra completamente e você cai no abismo, ouvindo o silêncio profundo do vazio com a última certeza de que a coragem nem sempre basta.',
                 ],
             ]),
-            'vila' => new Cena('vila', 'Vila de Sable', 'Ao chegar à vila, você encontra casas queimadas, janelas quebradas e uma fumaça fina que ainda não se dissipou. As pessoas escondem a dor, mas os olhares carregam o peso de civis que viram reféns da escuridão. Em meio ao pânico, um homem de rosto marcado aponta para o topo da colina e sussurra que um portal antigo foi aberto dentro do castelo.', 'vila.jpg', 'normal', 'templo', [
+            'vila' => new Cena('vila', 'Vila de Sable', 'Ao chegar à vila, você encontra casas queimadas, janelas quebradas e uma fumaça fina que ainda não se dissipou. As pessoas escondem a dor, mas os olhares carregam o peso de civis que viram reféns da escuridão. Em meio ao pânico, um homem de rosto marcado aponta para o topo da colina e sussurra que um portal antigo foi aberto dentro do castelo.', 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=1200&q=80', 'normal', 'templo', [
                 'pesquisar_aliados' => [
                     'titulo' => 'Buscar ajuda dos aliados',
                     'descricao' => 'Você fala com os sobreviventes, escuta histórias de perdas e percebe que, entre o medo, há pessoas que ainda acreditam na esperança do reino.',
@@ -289,7 +289,7 @@ class Game
                     'mensagemFalha' => 'A negociação sai ruim, e você acaba indo para a mina com a mochila leve mas o corpo cansado, como quem foi empurrado por um destino impaciente.',
                 ],
             ]),
-            'templo' => new Cena('templo', 'Templo da Lua', 'Você entra em um templo em ruínas, onde as colunas de pedra guardam o silêncio de séculos. O chão está coberto de poeira antiga e a lua, refletida em um espelho quebrado, projeta uma luz triste sobre a estátua central. Há algo de sagrado no lugar, e também algo de ameaçador: como se a própria divindade estivesse esperando para ver se você merece o poder que vem pela frente.', 'templo.jpg', 'desafio', 'castelo', [
+            'templo' => new Cena('templo', 'Templo da Lua', 'Você entra em um templo em ruínas, onde as colunas de pedra guardam o silêncio de séculos. O chão está coberto de poeira antiga e a lua, refletida em um espelho quebrado, projeta uma luz triste sobre a estátua central. Há algo de sagrado no lugar, e também algo de ameaçador: como se a própria divindade estivesse esperando para ver se você merece o poder que vem pela frente.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80', 'desafio', 'castelo', [
                 'invocar_luz' => [
                     'titulo' => 'Invocar a luz celestial',
                     'descricao' => 'Você levanta os braços e chama a luz antiga do santuário, sentindo uma energia sagrada percorrer seu corpo como um fogo frio e glorioso.',
@@ -323,7 +323,7 @@ class Game
                     'mensagemFalha' => 'A estátua responde com uma ameaça e você cai na caverna, sentindo a terra escura engolir o som dos seus passos.',
                 ],
             ]),
-            'rio' => new Cena('rio', 'Rio das Almas', 'O rio corre entre montanhas negras e a água parece não refletir o céu, mas sim os círculos escuros daquilo que foi perdido. Cada onda leva consigo o murmúrio de vozes antigas, como se o rio guardasse todas as almas que não conseguiram escapar da escuridão. A travessia não parece apenas física; parece uma prova de memória e coragem.', 'rio.jpg', 'desafio', 'caverna', [
+            'rio' => new Cena('rio', 'Rio das Almas', 'O rio corre entre montanhas negras e a água parece não refletir o céu, mas sim os círculos escuros daquilo que foi perdido. Cada onda leva consigo o murmúrio de vozes antigas, como se o rio guardasse todas as almas que não conseguiram escapar da escuridão. A travessia não parece apenas física; parece uma prova de memória e coragem.', 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80', 'desafio', 'caverna', [
                 'nadar_contra_corrente' => [
                     'titulo' => 'Nadar contra a corrente',
                     'descricao' => 'Você mergulha na correnteza e usa todas as forças para avançar contra a água, sentindo o peso do rio empurrando você para o fundo.',
@@ -357,7 +357,7 @@ class Game
                     'mensagemFalha' => 'Você só consegue chegar até a mina, ferido e exausto, como quem saiu vivo de um pesadelo, mas ainda não venceu a guerra.',
                 ],
             ]),
-            'caverna' => new Cena('caverna', 'Caverna do Eco', 'No fundo da caverna, cada passo ecoa contra as paredes como se o próprio chão estivesse repetindo as suas dúvidas. O ar está frio e pesado, e um guardião antigo parece te observar de dentro das sombras, imóvel como uma estátua viva. Há uma passagem secreta adiante, mas ela exige mais do que força: exige coragem e inteligência.', 'caverna.jpg', 'desafio', 'portal', [
+            'caverna' => new Cena('caverna', 'Caverna do Eco', 'No fundo da caverna, cada passo ecoa contra as paredes como se o próprio chão estivesse repetindo as suas dúvidas. O ar está frio e pesado, e um guardião antigo parece te observar de dentro das sombras, imóvel como uma estátua viva. Há uma passagem secreta adiante, mas ela exige mais do que força: exige coragem e inteligência.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80', 'desafio', 'portal', [
                 'resolver_enigma' => [
                     'titulo' => 'Resolver o enigma ancestral',
                     'descricao' => 'Você observa os símbolos antigos gravados na pedra, entende que não são apenas desenhos, mas uma linguagem esquecida, e tenta despertar a porta da caverna.',
@@ -391,7 +391,7 @@ class Game
                     'mensagemFalha' => 'A criatura sobrepuja você e a jornada termina ali, envolvida no manto de pedra e silêncio que a caverna guarda tão bem.',
                 ],
             ]),
-            'mina' => new Cena('mina', 'Mina da Escuridão', 'Você entra em uma mina abandonada, onde o ar cheira a ferro, mofo e pedra antiga. Lanternas quebradas se balançam em correntes oxidadas e o chão está repleto de ferramentas esquecidas por trabalhadores que nunca voltaram. No fundo, há um caminho estreito que parece levar diretamente ao portal, como se a própria terra apontasse para a última chance do reino.', 'mina.jpg', 'normal', 'portal', [
+            'mina' => new Cena('mina', 'Mina da Escuridão', 'Você entra em uma mina abandonada, onde o ar cheira a ferro, mofo e pedra antiga. Lanternas quebradas se balançam em correntes oxidadas e o chão está repleto de ferramentas esquecidas por trabalhadores que nunca voltaram. No fundo, há um caminho estreito que parece levar diretamente ao portal, como se a própria terra apontasse para a última chance do reino.', 'https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1200&q=80', 'normal', 'portal', [
                 'pegar_arma_antiga' => [
                     'titulo' => 'Pegar a arma antiga',
                     'descricao' => 'Você pega uma espada enferrujada entre as rochas, sentindo o peso do passado em cada golpe que a arma parece ter recebido antes de você.',
@@ -425,7 +425,7 @@ class Game
                     'mensagemFalha' => 'O túnel escorre para o rio e você se perde em terra sombria, onde cada sombra parece levar consigo uma lembrança daquilo que você ainda não salvou.',
                 ],
             ]),
-            'castelo' => new Cena('castelo', 'Castelo de Gelo', 'O castelo aparece entre as nuvens como uma fortaleza de vidro e geada, com torres que brilham como espadas congeladas. O vento corta a pele, e o chão parece um espelho quebrado. Lá dentro, no centro da torre mais alta, repousa a última chave que ainda pode salvar o reino, mas o caminho até ela está envolto em gelo, silêncio e promessas antigas.', 'castelo.jpg', 'normal', 'portal', [
+            'castelo' => new Cena('castelo', 'Castelo de Gelo', 'O castelo aparece entre as nuvens como uma fortaleza de vidro e geada, com torres que brilham como espadas congeladas. O vento corta a pele, e o chão parece um espelho quebrado. Lá dentro, no centro da torre mais alta, repousa a última chave que ainda pode salvar o reino, mas o caminho até ela está envolto em gelo, silêncio e promessas antigas.', 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1200&q=80', 'normal', 'portal', [
                 'subir_torre' => [
                     'titulo' => 'Subir até a torre',
                     'descricao' => 'Você avança pelas escadas geladas em busca da chave, sentindo a temperatura cair com cada degrau e ouvindo o eco dos seus próprios passos como se a torre estivesse te avaliando.',
@@ -459,7 +459,7 @@ class Game
                     'mensagemFalha' => 'A parede se fecha e você cai por um caminho mais escuro, onde as sombras parecem se lembrar de todas as derrotas que já aconteceram no reino.',
                 ],
             ]),
-            'portal' => new Cena('portal', 'Portal do Rei', 'No centro do reino, o portal pulsa como um coração maldito, espalhando luz vermelha e sombras tremeluzentes. O ar vibra, o chão treme, e tudo ao redor parece preparado para a última disputa. O destino do reino está em jogo, e o silêncio agora é mais pesado do que qualquer batalha anterior.', 'portal.jpg', 'desafio', 'vitoria', [
+            'portal' => new Cena('portal', 'Portal do Rei', 'No centro do reino, o portal pulsa como um coração maldito, espalhando luz vermelha e sombras tremeluzentes. O ar vibra, o chão treme, e tudo ao redor parece preparado para a última disputa. O destino do reino está em jogo, e o silêncio agora é mais pesado do que qualquer batalha anterior.', 'https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=1200&q=80', 'desafio', 'vitoria', [
                 'enfrentar_rei' => [
                     'titulo' => 'Enfrentar o rei das trevas',
                     'descricao' => 'Você entra na batalha final com o coração em chamas, pronto para decidir o destino do reino e o futuro das pessoas que ainda confiam em você.',
@@ -493,8 +493,8 @@ class Game
                     'mensagemFalha' => 'O selo falha e a escuridão toma conta de tudo, tornando a última visão do reino um símbolo de uma jornada que não conseguiu salvar o que era mais precioso.',
                 ],
             ]),
-            'vitoria' => new Cena('vitoria', 'Vitória', 'O reino se ilumina com uma luz antiga e acolhedora. As pessoas saem de suas casas, os campos voltam a reverdecer e os aliados se reúnem em torno de você como se a história finalmente tivesse escolhido o caminho certo. A escuridão recua, e o nome do herói passa a ser cantado nos muros de todas as cidades.', 'vitoria.jpg', 'final', null),
-            'derrota' => new Cena('derrota', 'Derrota', 'A escuridão vence, mas o reino não cai em silêncio. As sombras se espalham pelas muralhas, as lanternas apagam-se uma a uma e o mundo parece perder a última lembrança de esperança. Ainda assim, a história foi escrita por você, e sua jornada permanecerá nos sonhos de quem um dia ousar seguir o mesmo caminho.', 'derrota.jpg', 'final', null),
+            'vitoria' => new Cena('vitoria', 'Vitória', 'O reino se ilumina com uma luz antiga e acolhedora. As pessoas saem de suas casas, os campos voltam a reverdecer e os aliados se reúnem em torno de você como se a história finalmente tivesse escolhido o caminho certo. A escuridão recua, e o nome do herói passa a ser cantado nos muros de todas as cidades.', 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80', 'final', null),
+            'derrota' => new Cena('derrota', 'Derrota', 'A escuridão vence, mas o reino não cai em silêncio. As sombras se espalham pelas muralhas, as lanternas apagam-se uma a uma e o mundo parece perder a última lembrança de esperança. Ainda assim, a história foi escrita por você, e sua jornada permanecerá nos sonhos de quem um dia ousar seguir o mesmo caminho.', 'https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=1200&q=80', 'final', null),
         ];
     }
 }
