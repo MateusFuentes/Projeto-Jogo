@@ -81,6 +81,14 @@ $estadoAtual = $_SESSION['game'] ?? [
 
 $game = new Game($estadoAtual);
 $cena = $game->getCenaAtual();
+$imagemCena = $cena->getImagem();
+if (preg_match('/^https?:\/\//i', $imagemCena)) {
+    $imagemFundo = $imagemCena;
+} elseif (str_starts_with($imagemCena, 'images/')) {
+    $imagemFundo = $imagemCena;
+} else {
+    $imagemFundo = 'images/' . ltrim($imagemCena, '/');
+}
 $placar = (new Database())->lerTodos();
 $ultimasVitorias = array_slice($placar, 0, 5);
 $ultimoResultado = $_SESSION['ultimoResultado'] ?? null;
@@ -344,7 +352,7 @@ unset($_SESSION['ultimoResultado']);
                     <div>
                         <div class="imagem"
                              title="<?= htmlspecialchars($cena->getTitulo()) ?>"
-                             style="background-image: linear-gradient(rgba(32,22,15,0.38), rgba(32,22,15,0.55)), url('images/<?= htmlspecialchars($cena->getImagem()) ?>');">
+                             style="background-image: linear-gradient(rgba(32,22,15,0.38), rgba(32,22,15,0.55)), url('<?= htmlspecialchars($imagemFundo, ENT_QUOTES, 'UTF-8') ?>');">
                         </div>
 
                         <h2><?= htmlspecialchars($cena->getTitulo()) ?></h2>

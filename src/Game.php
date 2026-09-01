@@ -161,21 +161,21 @@ class Game
     private function getImagemCena(string $id): string
     {
         $imagens = [
-            'inicio' => 'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1200&q=80',
-            'bosque' => 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80',
-            'ponte' => 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80',
-            'vila' => 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=1200&q=80',
-            'templo' => 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=80',
-            'rio' => 'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=1200&q=80',
-            'caverna' => 'https://images.unsplash.com/photo-1520637836862-4d197d17c90a?auto=format&fit=crop&w=1200&q=80',
-            'mina' => 'https://images.unsplash.com/photo-1532301787110-8d89d8d3f3cf?auto=format&fit=crop&w=1200&q=80',
-            'castelo' => 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1200&q=80',
-            'portal' => 'https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=1200&q=80',
-            'vitoria' => 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80',
-            'derrota' => 'https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=1200&q=80',
+            'inicio' => 'capela.jpg',
+            'bosque' => 'bosque.jpg',
+            'ponte' => 'ponte.jpg',
+            'vila' => 'vila.jpg',
+            'templo' => 'templo.jpg',
+            'rio' => 'rio.jpg',
+            'caverna' => 'caverna.jpg',
+            'mina' => 'mina.jpg',
+            'castelo' => 'castelo.jpg',
+            'portal' => 'portal.jpg',
+            'vitoria' => 'portal.jpg',
+            'derrota' => 'derrota.jpg',
         ];
 
-        return $imagens[$id] ?? $imagens['inicio'];
+        return $imagens[$id] ?? 'capela.jpg';
     }
 
     private function definirCenas(): array
