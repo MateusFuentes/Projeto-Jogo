@@ -82,12 +82,17 @@ $estadoAtual = $_SESSION['game'] ?? [
 $game = new Game($estadoAtual);
 $cena = $game->getCenaAtual();
 $imagemCena = $cena->getImagem();
+$baseUrl = dirname($_SERVER['SCRIPT_NAME'] ?? '/');
+$baseUrl = $baseUrl === '.' ? '' : rtrim($baseUrl, '/');
+
 if (preg_match('/^https?:\/\//i', $imagemCena)) {
     $imagemFundo = $imagemCena;
-} elseif (str_starts_with($imagemCena, 'images/')) {
+} elseif (str_starts_with($imagemCena, '/')) {
     $imagemFundo = $imagemCena;
+} elseif (str_starts_with($imagemCena, 'images/')) {
+    $imagemFundo = $baseUrl . '/' . $imagemCena;
 } else {
-    $imagemFundo = 'images/' . ltrim($imagemCena, '/');
+    $imagemFundo = $baseUrl . '/images/' . ltrim($imagemCena, '/');
 }
 $placar = (new Database())->lerTodos();
 $ultimasVitorias = array_slice($placar, 0, 5);
