@@ -44,6 +44,45 @@ class Game
         return $this->cenas;
     }
 
+    private function ajustarChanceSucesso(float $chanceBase, string $cenaId): float
+    {
+        $chance = max(0.20, min(0.68, $chanceBase));
+
+        if ($this->personagem->getEnergia() < 10) {
+            $chance -= 0.10;
+        }
+
+        if ($this->personagem->getVida() < 35) {
+            $chance -= 0.12;
+        }
+
+        if (in_array($cenaId, ['portal', 'castelo', 'caverna', 'mina'], true)) {
+            $chance -= 0.08;
+        }
+
+        if ($cenaId === 'vitoria' || $cenaId === 'derrota') {
+            $chance = 0.5;
+        }
+
+        return max(0.20, min(0.68, $chance));
+    }
+
+    private function resolverDestino(array $opcao, bool $sucesso): string
+    {
+        $destinoSucesso = $opcao['proximoSucesso'] ?? ($opcao['proximo'] ?? $this->cenaAtual);
+        $destinoFalha = $opcao['proximoFalha'] ?? ($opcao['proximo'] ?? $this->cenaAtual);
+
+        if ($sucesso) {
+            return $destinoSucesso;
+        }
+
+        if ($destinoFalha === $destinoSucesso) {
+            return $this->cenaAtual;
+        }
+
+        return $destinoFalha;
+    }
+
     public function processarEscolha(string $opcaoId): array
     {
         if (in_array($this->cenaAtual, ['vitoria', 'derrota'], true)) {
@@ -62,16 +101,17 @@ class Game
         }
 
         $opcao = $opcoes[$opcaoId];
-        $chanceSucesso = (float) ($opcao['chanceSucesso'] ?? 0.5);
-        $chanceDerrota = (float) ($opcao['chanceDerrota'] ?? (1 - $chanceSucesso));
+        $chanceBase = (float) ($opcao['chanceSucesso'] ?? 0.5);
+        $chanceSucesso = $this->ajustarChanceSucesso($chanceBase, $this->cenaAtual);
+        $chanceDerrota = 1 - $chanceSucesso;
         $rolagem = random_int(1, 100);
         $percentual = $chanceSucesso * 100;
         $sucesso = $rolagem <= $percentual;
 
         $resultado = [
             'opcao' => $opcao['titulo'],
-            'chanceSucesso' => $chanceSucesso,
-            'chanceDerrota' => $chanceDerrota,
+            'chanceSucesso' => round($chanceSucesso, 2),
+            'chanceDerrota' => round($chanceDerrota, 2),
             'sucesso' => $sucesso,
             'mensagem' => '',
             'proximo' => $opcao['proximo'] ?? $this->cenaAtual,
@@ -81,13 +121,13 @@ class Game
             $this->personagem->ganharPontos((int) ($opcao['pontos'] ?? 15));
             $this->personagem->ganharEnergia((int) ($opcao['energia'] ?? 10));
             $this->personagem->recuperarVida((int) ($opcao['vida'] ?? 5));
-            $this->cenaAtual = $opcao['proximoSucesso'] ?? ($opcao['proximo'] ?? $this->cenaAtual);
+            $this->cenaAtual = $this->resolverDestino($opcao, true);
             $resultado['mensagem'] = $opcao['mensagemSucesso'] ?? 'Você concluiu a ação com sucesso.';
         } else {
             $this->personagem->ganharPontos((int) ($opcao['pontosFalha'] ?? 5));
             $this->personagem->gastarEnergia((int) ($opcao['energiaFalha'] ?? 12));
             $this->personagem->perderVida((int) ($opcao['vidaFalha'] ?? 20));
-            $this->cenaAtual = $opcao['proximoFalha'] ?? ($opcao['proximo'] ?? $this->cenaAtual);
+            $this->cenaAtual = $this->resolverDestino($opcao, false);
             $resultado['mensagem'] = $opcao['mensagemFalha'] ?? 'A ação falhou e você sofreu as consequências.';
         }
 
