@@ -26,9 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $perfil = [
             'guerreiro' => ['vida' => 110, 'energia' => 25, 'pontos' => 0],
-            'arqueiro' => ['vida' => 90, 'energia' => 35, 'pontos' => 5],
-            'mago' => ['vida' => 80, 'energia' => 45, 'pontos' => 10],
-            'ladino' => ['vida' => 95, 'energia' => 32, 'pontos' => 15],
+            'arqueiro'  => ['vida' => 90,  'energia' => 35, 'pontos' => 5],
+            'mago'      => ['vida' => 80,  'energia' => 45, 'pontos' => 10],
+            'ladino'    => ['vida' => 95,  'energia' => 32, 'pontos' => 15],
         ];
 
         $dadosHeroi = $perfil[$heroSelecionado] ?? $perfil['guerreiro'];
@@ -37,10 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['player_ready'] = true;
         $_SESSION['game'] = [
             'personagem' => [
-                'nome' => $nomePersonagem,
-                'vida' => $dadosHeroi['vida'],
+                'nome'    => $nomePersonagem,
+                'vida'    => $dadosHeroi['vida'],
                 'energia' => $dadosHeroi['energia'],
-                'pontos' => $dadosHeroi['pontos'],
+                'pontos'  => $dadosHeroi['pontos'],
             ],
             'cenaAtual' => 'inicio',
         ];
@@ -49,7 +49,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($acao === 'escolher') {
-        $estadoAtual = $_SESSION['game'] ?? ['personagem' => ['nome' => $nomePersonagem, 'vida' => 100, 'energia' => 30, 'pontos' => 0], 'cenaAtual' => 'inicio'];
+        $estadoAtual = $_SESSION['game'] ?? [
+            'personagem' => [
+                'nome' => $nomePersonagem,
+                'vida' => 100,
+                'energia' => 30,
+                'pontos' => 0
+            ],
+            'cenaAtual' => 'inicio'
+        ];
         $game = new Game($estadoAtual);
         $resultado = $game->processarEscolha($_POST['opcao'] ?? '');
         $_SESSION['ultimoResultado'] = $resultado;
@@ -61,7 +69,16 @@ if (!$loginAtivo) {
     $_SESSION['game'] = $_SESSION['game'] ?? (new Game())->toArray();
 }
 
-$estadoAtual = $_SESSION['game'] ?? ['personagem' => ['nome' => $nomePersonagem, 'vida' => 100, 'energia' => 30, 'pontos' => 0], 'cenaAtual' => 'inicio'];
+$estadoAtual = $_SESSION['game'] ?? [
+    'personagem' => [
+        'nome' => $nomePersonagem,
+        'vida' => 100,
+        'energia' => 30,
+        'pontos' => 0
+    ],
+    'cenaAtual' => 'inicio'
+];
+
 $game = new Game($estadoAtual);
 $cena = $game->getCenaAtual();
 $placar = (new Database())->lerTodos();
@@ -142,18 +159,12 @@ unset($_SESSION['ultimoResultado']);
             margin-top: 20px;
         }
         .imagem {
-            min-height: 300px;
+            min-height: 320px;
             border-radius: 16px;
-            background: linear-gradient(135deg, #3c2b1d, #70563d);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #f8e9c8;
-            font-size: 1.2rem;
-            text-align: center;
-            border: 1px solid #b88d52;
             background-size: cover;
             background-position: center;
+            background-color: #3c2b1d;
+            border: 1px solid #b88d52;
         }
         .texto {
             line-height: 1.7;
@@ -279,8 +290,8 @@ unset($_SESSION['ultimoResultado']);
             </div>
 
             <div class="abas">
-                <div class="aba ativa">Login</div>
-                <div class="aba">Jogo</div>
+                <div class="aba <?= !$loginAtivo ? 'ativa' : '' ?>">Login</div>
+                <div class="aba <?= $loginAtivo ? 'ativa' : '' ?>">Jogo</div>
             </div>
 
             <?php if (!$loginAtivo): ?>
@@ -331,7 +342,11 @@ unset($_SESSION['ultimoResultado']);
 
                 <div class="conteudo">
                     <div>
-                        <div class="imagem" title="Cena atual" style="background-image: linear-gradient(rgba(32,22,15,0.38), rgba(32,22,15,0.55)), url('<?= htmlspecialchars($cena->getImagem()) ?>');"></div>
+                        <div class="imagem"
+                             title="<?= htmlspecialchars($cena->getTitulo()) ?>"
+                             style="background-image: linear-gradient(rgba(32,22,15,0.38), rgba(32,22,15,0.55)), url('images/<?= htmlspecialchars($cena->getImagem()) ?>');">
+                        </div>
+
                         <h2><?= htmlspecialchars($cena->getTitulo()) ?></h2>
                         <p class="texto"><?= htmlspecialchars($cena->getDescricao()) ?></p>
 
@@ -393,31 +408,6 @@ unset($_SESSION['ultimoResultado']);
                     </div>
                 </div>
             <?php endif; ?>
-        </div>
-    </div>
-</body>
-</html>
-
-                            <tr>
-                                <th>Jogador</th>
-                                <th>Pontos</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($ultimasVitorias)): ?>
-                                <tr><td colspan="2">Nenhuma pontuação salva ainda.</td></tr>
-                            <?php else: ?>
-                                <?php foreach ($ultimasVitorias as $item): ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($item['nome']) ?></td>
-                                        <td><?= (int) $item['pontos'] ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </div>
     </div>
 </body>
