@@ -11,6 +11,7 @@ class Game
     private Personagem $personagem;
     private array $cenas;
     private string $cenaAtual;
+    private array $historico;
     private ?Database $database;
 
     public function __construct(array $estado = [])
@@ -20,6 +21,10 @@ class Game
             : new Personagem('Aragor');
 
         $this->cenaAtual = $estado['cenaAtual'] ?? 'inicio';
+        $this->historico = array_values(array_filter(
+            $estado['historico'] ?? [],
+            fn ($cenaId) => is_string($cenaId)
+        ));
         $this->database = new Database();
         $this->cenas = $this->definirCenas();
     }
@@ -46,25 +51,25 @@ class Game
 
     private function ajustarChanceSucesso(float $chanceBase, string $cenaId): float
     {
-        $chance = max(0.20, min(0.68, $chanceBase));
+        $chance = max(0.12, min(0.58, $chanceBase - 0.08));
 
         if ($this->personagem->getEnergia() < 10) {
-            $chance -= 0.10;
-        }
-
-        if ($this->personagem->getVida() < 35) {
             $chance -= 0.12;
         }
 
+        if ($this->personagem->getVida() < 35) {
+            $chance -= 0.15;
+        }
+
         if (in_array($cenaId, ['portal', 'castelo', 'caverna', 'mina'], true)) {
-            $chance -= 0.08;
+            $chance -= 0.10;
         }
 
         if ($cenaId === 'vitoria' || $cenaId === 'derrota') {
-            $chance = 0.5;
+            $chance = 0.45;
         }
 
-        return max(0.20, min(0.68, $chance));
+        return max(0.12, min(0.58, $chance));
     }
 
     private function resolverDestino(array $opcao, bool $sucesso): string
@@ -117,18 +122,42 @@ class Game
             'proximo' => $opcao['proximo'] ?? $this->cenaAtual,
         ];
 
+        if (!empty($opcao['fatal'])) {
+            $this->personagem->perderVida($this->personagem->getVida());
+            $this->cenaAtual = 'derrota';
+            $resultado['chanceSucesso'] = 0;
+            $resultado['chanceDerrota'] = 1;
+            $resultado['sucesso'] = false;
+            $resultado['mensagem'] = $opcao['mensagemFatal'] ?? 'A escolha fatal encerrou sua jornada imediatamente.';
+            $this->salvarPontuacaoSeNecessario();
+            return $resultado;
+        }
+
         if ($sucesso) {
             $this->personagem->ganharPontos((int) ($opcao['pontos'] ?? 15));
             $this->personagem->ganharEnergia((int) ($opcao['energia'] ?? 10));
             $this->personagem->recuperarVida((int) ($opcao['vida'] ?? 5));
-            $this->cenaAtual = $this->resolverDestino($opcao, true);
+            $proximaCena = $this->resolverDestino($opcao, true);
+            if ($proximaCena !== $this->cenaAtual) {
+                $this->historico[] = $this->cenaAtual;
+                $this->cenaAtual = $proximaCena;
+            }
             $resultado['mensagem'] = $opcao['mensagemSucesso'] ?? 'Você concluiu a ação com sucesso.';
         } else {
             $this->personagem->ganharPontos((int) ($opcao['pontosFalha'] ?? 5));
             $this->personagem->gastarEnergia((int) ($opcao['energiaFalha'] ?? 12));
             $this->personagem->perderVida((int) ($opcao['vidaFalha'] ?? 20));
-            $this->cenaAtual = $this->resolverDestino($opcao, false);
-            $resultado['mensagem'] = $opcao['mensagemFalha'] ?? 'A ação falhou e você sofreu as consequências.';
+            while (!empty($this->historico) && end($this->historico) === $this->cenaAtual) {
+                array_pop($this->historico);
+            }
+
+            if (!empty($this->historico)) {
+                $this->cenaAtual = array_pop($this->historico);
+                $resultado['mensagem'] = ($opcao['mensagemFalha'] ?? 'A ação falhou e você sofreu as consequências.')
+                    . ' Você percebe que tomou o caminho errado e retorna automaticamente à cena anterior.';
+            } else {
+                $resultado['mensagem'] = $opcao['mensagemFalha'] ?? 'A ação falhou e você sofreu as consequências.';
+            }
         }
 
         if ($this->personagem->getVida() <= 0) {
@@ -155,6 +184,7 @@ class Game
         return [
             'personagem' => $this->personagem->toArray(),
             'cenaAtual' => $this->cenaAtual,
+            'historico' => $this->historico,
         ];
     }
 
@@ -181,7 +211,7 @@ class Game
     private function definirCenas(): array
     {
         return [
-            'inicio' => new Cena('inicio', 'Capela da Aurora', 'Você acorda em uma capela antiga, com o cheiro de velas apagadas e pedra úmida no ar. A luz do amanhecer entra pela janela quebrada e revela um reino em silêncio, como se o mundo inteiro estivesse esperando por uma decisão. O sino da torre ecoa ao longe, e você entende que a missão não é apenas sobreviver, mas recuperar a coragem que o povo perdeu.', $this->getImagemCena('inicio'), 'normal', 'bosque', [
+            'inicio' => new Cena('inicio', 'Capela da Aurora', 'Você desperta sobre as lajes frias da Capela da Aurora, com gosto de cinza na boca e o cheiro de cera queimada preso às paredes. Durante a noite, alguém apagou todas as velas, menos uma: sua chama azulada se inclina sempre na direção da porta, como se apontasse para o perigo. Pelos vitrais quebrados, o amanhecer revela campos cobertos por uma névoa escura e, além deles, torres sem bandeiras. O sino toca uma única vez, embora a corda esteja partida. No altar, o brasão real foi riscado por uma lâmina. Você se lembra da promessa feita antes da queda do reino: encontrar a origem da escuridão antes que o último sino toque.', $this->getImagemCena('inicio'), 'normal', 'bosque', [
                 'seguir_luz' => [
                     'titulo' => 'Seguir a luz do altar',
                     'descricao' => 'Você se entrega ao brilho sagrado do altar, sente o calor da fé em suas mãos e escolhe o caminho mais seguro, mesmo que o destino ainda esteja oculto pela névoa.',
@@ -214,8 +244,21 @@ class Game
                     'mensagemSucesso' => 'As ruínas revelam uma rota esquecida, como um mapa invisível desenhado pela história e pela dor dos antigos guerreiros.',
                     'mensagemFalha' => 'A passagem sombria se fecha sobre você, e por um momento a escuridão parece mais viva do que qualquer criatura do reino.',
                 ],
+                'tocar_sino' => [
+                    'titulo' => 'Tocar o sino proibido',
+                    'descricao' => 'Você puxa a corda do sino rachado e desperta um eco que pode chamar ajuda ou denunciar sua presença aos inimigos.',
+                    'chanceSucesso' => 0.42,
+                    'proximoSucesso' => 'bosque',
+                    'proximoFalha' => 'rio',
+                    'pontos' => 24,
+                    'pontosFalha' => 2,
+                    'energiaFalha' => 16,
+                    'vidaFalha' => 24,
+                    'mensagemSucesso' => 'O sino convoca um antigo guardião, que revela uma trilha escondida para o bosque.',
+                    'mensagemFalha' => 'O sino atrai uma onda de sombras, e você foge para o rio antes que a capela desabe.',
+                ],
             ]),
-            'bosque' => new Cena('bosque', 'Bosque da Bruma', 'Você atravessa um bosque fechado, onde as árvores se curvam como antigas sentinelas e a névoa parece respirar junto com você. Ao longe, entre os troncos, um lobo enorme o observa com olhos brilhantes, sem medo nem desejo de fugir. O mundo parece abafado, como se o próprio ar estivesse esperando a sua próxima decisão.', $this->getImagemCena('bosque'), 'desafio', 'ponte', [
+            'bosque' => new Cena('bosque', 'Bosque da Bruma', 'A trilha desaparece poucos passos depois da capela. O Bosque da Bruma é formado por árvores antigas, retorcidas pelo frio, cujas raízes levantam a terra como costelas de um animal enterrado. Gotas escorrem das folhas mesmo onde não chove, e a névoa traz vozes que imitam pessoas conhecidas. Entre os troncos, um lobo enorme observa você; há uma cicatriz prateada atravessando seu focinho e um pequeno medalhão real preso à coleira. Ao norte, a ponte range. Ao sul, uma fumaça avermelhada sobe da direção da mina. O bosque parece oferecer vários caminhos, mas nenhum deles parece querer deixá-lo sair.', $this->getImagemCena('bosque'), 'desafio', 'ponte', [
                 'atacar_lobo' => [
                     'titulo' => 'Atacar o lobo',
                     'descricao' => 'Com a espada firme na mão, você avança contra o lobo antes que ele dê o primeiro salto, ouvindo o estalo seco das folhas sob seus pés.',
@@ -264,8 +307,14 @@ class Game
                     'mensagemSucesso' => 'Os rastros levam você à ponte, e o vento da madrugada parece cessar por um instante, como se o mundo aguardasse sua passagem.',
                     'mensagemFalha' => 'O rastro te leva até uma caverna esquecida, onde o eco dos passos parece ser o único som vivo no lugar.',
                 ],
+                'beber_agua_negra' => [
+                    'titulo' => 'Beber a água negra',
+                    'descricao' => 'Uma poça escura promete força imediata, mas sua superfície não reflete seu rosto.',
+                    'fatal' => true,
+                    'mensagemFatal' => 'A água negra apaga sua vontade, e a floresta guarda seu corpo como mais um segredo.',
+                ],
             ]),
-            'ponte' => new Cena('ponte', 'Ponte do Abismo', 'A ponte de pedra cruza um abismo negro e profundo, onde o vento sobe como um suspiro de morte. Cada faixa de madeira e cada corrimão enferrujado tremem sob seus pés, e a distância entre o mundo conhecido e o desconhecido parece se abrir com cada passo. O céu acima está pálido, mas o vazio abaixo parece ter memória do que perdeu.', $this->getImagemCena('ponte'), 'desafio', 'vila', [
+            'ponte' => new Cena('ponte', 'Ponte do Abismo', 'A Ponte do Abismo foi construída com pedra negra e tábuas substituídas às pressas, muitas delas marcadas pelos símbolos dos soldados que nunca voltaram. Lá embaixo, o vazio não é silencioso: correntes de ar sobem carregando sussurros, o som distante de água e, às vezes, o chamado de alguém pronunciando seu nome. Do outro lado, as primeiras casas da Vila de Sable brilham sob uma luz amarela e fraca. A ponte se move mesmo quando você fica imóvel. Cada passo será uma negociação com o vento, a madeira e o medo.', $this->getImagemCena('ponte'), 'desafio', 'vila', [
                 'correr_rapido' => [
                     'titulo' => 'Correr rapidamente',
                     'descricao' => 'Você se lança na travessia com toda a velocidade que o medo permite, sentindo a ponte tremer sob o peso do seu corpo e do abismo abaixo.',
@@ -314,8 +363,14 @@ class Game
                     'mensagemSucesso' => 'Você aguarda o momento perfeito e atravessa com precisão, como se o destino tivesse finalmente escolhido o seu nome.',
                     'mensagemFalha' => 'A ponte quebra completamente e você cai no abismo, ouvindo o silêncio profundo do vazio com a última certeza de que a coragem nem sempre basta.',
                 ],
+                'saltar_abismo' => [
+                    'titulo' => 'Saltar diretamente sobre o abismo',
+                    'descricao' => 'Você decide confiar apenas nas próprias pernas e ignora a ponte instável sob seus pés.',
+                    'fatal' => true,
+                    'mensagemFatal' => 'O salto não alcança o outro lado. O abismo encerra sua jornada antes que você possa se arrepender.',
+                ],
             ]),
-            'vila' => new Cena('vila', 'Vila de Sable', 'Ao chegar à vila, você encontra casas queimadas, janelas quebradas e uma fumaça fina que ainda não se dissipou. As pessoas escondem a dor, mas os olhares carregam o peso de civis que viram reféns da escuridão. Em meio ao pânico, um homem de rosto marcado aponta para o topo da colina e sussurra que um portal antigo foi aberto dentro do castelo.', $this->getImagemCena('vila'), 'normal', 'templo', [
+            'vila' => new Cena('vila', 'Vila de Sable', 'A Vila de Sable não foi destruída de uma vez; cada rua mostra uma camada diferente do ataque. Há portas trancadas por dentro, marcas de mãos na fuligem e pratos ainda postos em mesas onde ninguém voltou para comer. Os sobreviventes se escondem atrás de cortinas, observando sua espada antes de decidir se você merece confiança. Um homem de rosto marcado, antigo mensageiro do rei, aponta para a colina: o castelo não abriu um portal, ele explica, foi o portal que abriu o castelo por dentro. Antes de seguir, você precisa descobrir em quem confiar e qual parte da história foi enterrada junto com os mortos.', $this->getImagemCena('vila'), 'normal', 'templo', [
                 'pesquisar_aliados' => [
                     'titulo' => 'Buscar ajuda dos aliados',
                     'descricao' => 'Você fala com os sobreviventes, escuta histórias de perdas e percebe que, entre o medo, há pessoas que ainda acreditam na esperança do reino.',
@@ -348,8 +403,21 @@ class Game
                     'mensagemSucesso' => 'As provisões ajudam a sustentar sua força, e a jornada para o templo parece menos cruel quando a barriga não lateja de fome.',
                     'mensagemFalha' => 'A negociação sai ruim, e você acaba indo para a mina com a mochila leve mas o corpo cansado, como quem foi empurrado por um destino impaciente.',
                 ],
+                'seguir_sussurros' => [
+                    'titulo' => 'Seguir os sussurros da casa queimada',
+                    'descricao' => 'Você entra numa casa em ruínas para descobrir quem ainda está pedindo ajuda entre as paredes.',
+                    'chanceSucesso' => 0.36,
+                    'proximoSucesso' => 'templo',
+                    'proximoFalha' => 'caverna',
+                    'pontos' => 30,
+                    'pontosFalha' => 3,
+                    'energiaFalha' => 18,
+                    'vidaFalha' => 26,
+                    'mensagemSucesso' => 'Você encontra uma sobrevivente, que entrega um símbolo capaz de abrir o templo.',
+                    'mensagemFalha' => 'Os sussurros eram uma armadilha. Você escapa por um túnel que termina na caverna.',
+                ],
             ]),
-            'templo' => new Cena('templo', 'Templo da Lua', 'Você entra em um templo em ruínas, onde as colunas de pedra guardam o silêncio de séculos. O chão está coberto de poeira antiga e a lua, refletida em um espelho quebrado, projeta uma luz triste sobre a estátua central. Há algo de sagrado no lugar, e também algo de ameaçador: como se a própria divindade estivesse esperando para ver se você merece o poder que vem pela frente.', $this->getImagemCena('templo'), 'desafio', 'castelo', [
+            'templo' => new Cena('templo', 'Templo da Lua', 'O Templo da Lua permanece de pé apenas porque as colunas parecem sustentar umas às outras. A poeira cobre os degraus, mas não consegue esconder pegadas recentes que terminam diante da estátua central. Um espelho partido reflete a lua em dezenas de fragmentos, e cada reflexo mostra o santuário em uma época diferente: cheio de fiéis, coberto de sangue, vazio. Nas paredes, sacerdotes antigos registraram que o portal só poderia ser fechado por alguém capaz de carregar a luz sem confundi-la com poder. Quando você entra, os sinos subterrâneos começam a tocar.', $this->getImagemCena('templo'), 'desafio', 'castelo', [
                 'invocar_luz' => [
                     'titulo' => 'Invocar a luz celestial',
                     'descricao' => 'Você levanta os braços e chama a luz antiga do santuário, sentindo uma energia sagrada percorrer seu corpo como um fogo frio e glorioso.',
@@ -383,7 +451,7 @@ class Game
                     'mensagemFalha' => 'A estátua responde com uma ameaça e você cai na caverna, sentindo a terra escura engolir o som dos seus passos.',
                 ],
             ]),
-            'rio' => new Cena('rio', 'Rio das Almas', 'O rio corre entre montanhas negras e a água parece não refletir o céu, mas sim os círculos escuros daquilo que foi perdido. Cada onda leva consigo o murmúrio de vozes antigas, como se o rio guardasse todas as almas que não conseguiram escapar da escuridão. A travessia não parece apenas física; parece uma prova de memória e coragem.', $this->getImagemCena('rio'), 'desafio', 'caverna', [
+            'rio' => new Cena('rio', 'Rio das Almas', 'O Rio das Almas corta as montanhas como uma ferida aberta. A água é escura, mas não por causa da profundidade: sob a superfície passam rostos, lanternas e cenas de pessoas que desapareceram durante a queda do reino. A corrente muda de direção sem aviso, como se obedecesse a uma vontade própria. Na margem oposta, a entrada da Caverna do Eco pulsa com uma luz pálida. Para alcançá-la, você terá de atravessar não apenas a água, mas as lembranças que o rio tenta devolver.', $this->getImagemCena('rio'), 'desafio', 'caverna', [
                 'nadar_contra_corrente' => [
                     'titulo' => 'Nadar contra a corrente',
                     'descricao' => 'Você mergulha na correnteza e usa todas as forças para avançar contra a água, sentindo o peso do rio empurrando você para o fundo.',
@@ -417,7 +485,7 @@ class Game
                     'mensagemFalha' => 'Você só consegue chegar até a mina, ferido e exausto, como quem saiu vivo de um pesadelo, mas ainda não venceu a guerra.',
                 ],
             ]),
-            'caverna' => new Cena('caverna', 'Caverna do Eco', 'No fundo da caverna, cada passo ecoa contra as paredes como se o próprio chão estivesse repetindo as suas dúvidas. O ar está frio e pesado, e um guardião antigo parece te observar de dentro das sombras, imóvel como uma estátua viva. Há uma passagem secreta adiante, mas ela exige mais do que força: exige coragem e inteligência.', $this->getImagemCena('caverna'), 'desafio', 'portal', [
+            'caverna' => new Cena('caverna', 'Caverna do Eco', 'A entrada se fecha atrás de você com um estalo profundo, e o som continua viajando pelas galerias muito depois de o silêncio voltar. Nas paredes da Caverna do Eco há inscrições feitas por exploradores de várias eras; algumas terminam no meio de uma frase, outras repetem a mesma palavra em línguas diferentes. O ar cheira a pedra molhada e ferro. Mais adiante, um guardião coberto por placas de basalto protege uma porta sem maçaneta. Ele não parece guardar um tesouro, mas uma decisão que alguém tentou esquecer.', $this->getImagemCena('caverna'), 'desafio', 'portal', [
                 'resolver_enigma' => [
                     'titulo' => 'Resolver o enigma ancestral',
                     'descricao' => 'Você observa os símbolos antigos gravados na pedra, entende que não são apenas desenhos, mas uma linguagem esquecida, e tenta despertar a porta da caverna.',
@@ -451,7 +519,7 @@ class Game
                     'mensagemFalha' => 'A criatura sobrepuja você e a jornada termina ali, envolvida no manto de pedra e silêncio que a caverna guarda tão bem.',
                 ],
             ]),
-            'mina' => new Cena('mina', 'Mina da Escuridão', 'Você entra em uma mina abandonada, onde o ar cheira a ferro, mofo e pedra antiga. Lanternas quebradas se balançam em correntes oxidadas e o chão está repleto de ferramentas esquecidas por trabalhadores que nunca voltaram. No fundo, há um caminho estreito que parece levar diretamente ao portal, como se a própria terra apontasse para a última chance do reino.', $this->getImagemCena('mina'), 'normal', 'portal', [
+            'mina' => new Cena('mina', 'Mina da Escuridão', 'A Mina da Escuridão foi abandonada às pressas. Picaretas continuam fincadas nas paredes, carrinhos permanecem carregados de minério e uma fileira de capacetes enferrujados marca o ponto onde os trabalhadores pararam de fugir. O minério nas rochas pulsa com uma luz vermelha, quente o bastante para aquecer as mãos e fria o bastante para causar arrepios. Em túneis laterais, você encontra mapas rasgados que mostram a mina sob o castelo e uma passagem desenhada em direção ao portal. Algo respira no fundo, no ritmo lento das pedras cedendo.', $this->getImagemCena('mina'), 'normal', 'portal', [
                 'pegar_arma_antiga' => [
                     'titulo' => 'Pegar a arma antiga',
                     'descricao' => 'Você pega uma espada enferrujada entre as rochas, sentindo o peso do passado em cada golpe que a arma parece ter recebido antes de você.',
@@ -485,7 +553,7 @@ class Game
                     'mensagemFalha' => 'O túnel escorre para o rio e você se perde em terra sombria, onde cada sombra parece levar consigo uma lembrança daquilo que você ainda não salvou.',
                 ],
             ]),
-            'castelo' => new Cena('castelo', 'Castelo de Gelo', 'O castelo aparece entre as nuvens como uma fortaleza de vidro e geada, com torres que brilham como espadas congeladas. O vento corta a pele, e o chão parece um espelho quebrado. Lá dentro, no centro da torre mais alta, repousa a última chave que ainda pode salvar o reino, mas o caminho até ela está envolto em gelo, silêncio e promessas antigas.', $this->getImagemCena('castelo'), 'normal', 'portal', [
+            'castelo' => new Cena('castelo', 'Castelo de Gelo', 'O Castelo de Gelo surge entre nuvens baixas, preso à montanha por correntes de gelo que parecem raízes. Nenhuma bandeira se move nas torres, mas há silhuetas atrás das janelas, imóveis como retratos. O frio não vem apenas do vento: ele escapa pelas pedras e congela pensamentos, nomes e lembranças. No alto da torre central está a Chave da Aurora, último artefato capaz de enfrentar o rei das trevas. Para alcançá-la, você deverá atravessar salões onde o castelo conserva ecos de seus antigos moradores.', $this->getImagemCena('castelo'), 'normal', 'portal', [
                 'subir_torre' => [
                     'titulo' => 'Subir até a torre',
                     'descricao' => 'Você avança pelas escadas geladas em busca da chave, sentindo a temperatura cair com cada degrau e ouvindo o eco dos seus próprios passos como se a torre estivesse te avaliando.',
@@ -519,7 +587,7 @@ class Game
                     'mensagemFalha' => 'A parede se fecha e você cai por um caminho mais escuro, onde as sombras parecem se lembrar de todas as derrotas que já aconteceram no reino.',
                 ],
             ]),
-            'portal' => new Cena('portal', 'Portal do Rei', 'No centro do reino, o portal pulsa como um coração maldito, espalhando luz vermelha e sombras tremeluzentes. O ar vibra, o chão treme, e tudo ao redor parece preparado para a última disputa. O destino do reino está em jogo, e o silêncio agora é mais pesado do que qualquer batalha anterior.', $this->getImagemCena('portal'), 'desafio', 'vitoria', [
+            'portal' => new Cena('portal', 'Portal do Rei', 'No centro das ruínas da capital, o Portal do Rei rasga o céu como uma ferida vertical. De um lado, você vê o salão do trono; do outro, um vazio cheio de estrelas mortas. A luz vermelha pulsa no mesmo ritmo do seu coração, e cada pulso faz as pedras do reino se lembrarem de quando ainda havia música nas praças. O rei das trevas espera no limiar, não como uma criatura distante, mas como alguém que conhece seu nome, sua história e o motivo secreto que o trouxe até ali. Atrás dele, o portal começa a fechar-se sobre a última esperança do reino.', $this->getImagemCena('portal'), 'desafio', 'vitoria', [
                 'enfrentar_rei' => [
                     'titulo' => 'Enfrentar o rei das trevas',
                     'descricao' => 'Você entra na batalha final com o coração em chamas, pronto para decidir o destino do reino e o futuro das pessoas que ainda confiam em você.',
@@ -552,9 +620,15 @@ class Game
                     'mensagemSucesso' => 'O portal se fecha e a luz retorna ao reino, como se a própria terra tivesse respirado aliviada depois de um longo pesadelo.',
                     'mensagemFalha' => 'O selo falha e a escuridão toma conta de tudo, tornando a última visão do reino um símbolo de uma jornada que não conseguiu salvar o que era mais precioso.',
                 ],
+                'aceitar_pacto' => [
+                    'titulo' => 'Aceitar o pacto do rei das trevas',
+                    'descricao' => 'O rei oferece poder suficiente para salvar o reino, mas exige que você entregue sua própria vontade em troca.',
+                    'fatal' => true,
+                    'mensagemFatal' => 'O pacto consome sua alma. O portal permanece aberto e sua jornada termina como parte da escuridão.',
+                ],
             ]),
-            'vitoria' => new Cena('vitoria', 'Vitória', 'O reino se ilumina com uma luz antiga e acolhedora. As pessoas saem de suas casas, os campos voltam a reverdecer e os aliados se reúnem em torno de você como se a história finalmente tivesse escolhido o caminho certo. A escuridão recua, e o nome do herói passa a ser cantado nos muros de todas as cidades.', $this->getImagemCena('vitoria'), 'final', null),
-            'derrota' => new Cena('derrota', 'Derrota', 'A escuridão vence, mas o reino não cai em silêncio. As sombras se espalham pelas muralhas, as lanternas apagam-se uma a uma e o mundo parece perder a última lembrança de esperança. Ainda assim, a história foi escrita por você, e sua jornada permanecerá nos sonhos de quem um dia ousar seguir o mesmo caminho.', $this->getImagemCena('derrota'), 'final', null),
+            'vitoria' => new Cena('vitoria', 'Vitória', 'Quando o portal se fecha, o silêncio dura tempo suficiente para que você ouça a primeira gota de chuva cair sobre a praça. Depois, a luz retorna em ondas: as janelas se abrem, os sinos respondem uns aos outros e as pessoas saem das casas carregando os nomes de quem perderam. O reino não volta a ser o que era, mas agora pode escolher o que será. A Chave da Aurora se desfaz em suas mãos, transformando-se em pequenas faíscas que pousam sobre os campos. Sua história será contada, não como a de alguém que nunca teve medo, mas como a de quem continuou caminhando enquanto o medo apontava o caminho contrário.', $this->getImagemCena('vitoria'), 'final', null),
+            'derrota' => new Cena('derrota', 'Derrota', 'A escuridão não chega como uma explosão, mas como uma maré paciente. Primeiro, as últimas luzes da capital se apagam; depois, o frio alcança as vilas e o céu perde a cor. O portal permanece aberto, respirando sobre as ruínas como uma boca que nunca se sacia. Em algum lugar, alguém ainda contará que um herói tentou atravessar a noite. Talvez a história seja lembrada como um aviso, talvez como uma promessa: enquanto alguém se lembrar do caminho até a Capela da Aurora, o reino ainda não estará completamente perdido.', $this->getImagemCena('derrota'), 'final', null),
         ];
     }
 }

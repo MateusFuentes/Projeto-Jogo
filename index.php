@@ -6,6 +6,15 @@ require_once __DIR__ . '/src/Game.php';
 $heroSelecionado = $_SESSION['hero'] ?? 'guerreiro';
 $nomePersonagem = trim((string) ($_SESSION['player_name'] ?? 'Aragor'));
 $loginAtivo = !empty($_SESSION['player_name']) && !empty($_SESSION['hero']);
+$estadoPadrao = [
+    'personagem' => [
+        'nome' => $nomePersonagem,
+        'vida' => 100,
+        'energia' => 30,
+        'pontos' => 0,
+    ],
+    'cenaAtual' => 'inicio',
+];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $acao = $_POST['acao'] ?? '';
@@ -49,51 +58,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($acao === 'escolher') {
-        $estadoAtual = $_SESSION['game'] ?? [
-            'personagem' => [
-                'nome' => $nomePersonagem,
-                'vida' => 100,
-                'energia' => 30,
-                'pontos' => 0
-            ],
-            'cenaAtual' => 'inicio'
-        ];
+        $estadoAtual = $_SESSION['game'] ?? $estadoPadrao;
         $game = new Game($estadoAtual);
         $resultado = $game->processarEscolha($_POST['opcao'] ?? '');
         $_SESSION['ultimoResultado'] = $resultado;
         $_SESSION['game'] = $game->toArray();
     }
+
 }
 
-if (!$loginAtivo) {
-    $_SESSION['game'] = $_SESSION['game'] ?? (new Game())->toArray();
+if (!isset($_SESSION['game'])) {
+    $_SESSION['game'] = (new Game($estadoPadrao))->toArray();
 }
 
-$estadoAtual = $_SESSION['game'] ?? [
-    'personagem' => [
-        'nome' => $nomePersonagem,
-        'vida' => 100,
-        'energia' => 30,
-        'pontos' => 0
-    ],
-    'cenaAtual' => 'inicio'
-];
-
-$game = new Game($estadoAtual);
+$game = new Game($_SESSION['game']);
 $cena = $game->getCenaAtual();
 $imagemCena = $cena->getImagem();
-$baseUrl = dirname($_SERVER['SCRIPT_NAME'] ?? '/');
-$baseUrl = $baseUrl === '.' ? '' : rtrim($baseUrl, '/');
-
-if (preg_match('/^https?:\/\//i', $imagemCena)) {
-    $imagemFundo = $imagemCena;
-} elseif (str_starts_with($imagemCena, '/')) {
-    $imagemFundo = $imagemCena;
-} elseif (str_starts_with($imagemCena, 'images/')) {
-    $imagemFundo = $baseUrl . '/' . $imagemCena;
-} else {
-    $imagemFundo = $baseUrl . '/images/' . ltrim($imagemCena, '/');
-}
+$pastaDoJogo = dirname($_SERVER['SCRIPT_NAME'] ?? '/');
+$pastaDoJogo = $pastaDoJogo === '.' ? '' : rtrim($pastaDoJogo, '/');
+$imagemFundo = $pastaDoJogo . '/images/' . $imagemCena;
 $placar = (new Database())->lerTodos();
 $ultimasVitorias = array_slice($placar, 0, 5);
 $ultimoResultado = $_SESSION['ultimoResultado'] ?? null;
@@ -104,7 +87,7 @@ unset($_SESSION['ultimoResultado']);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RPG Web — Aventura em PHP</title>
+    <title>As Cinzas da Aurora</title>
     <style>
         body {
             margin: 0;
@@ -299,7 +282,7 @@ unset($_SESSION['ultimoResultado']);
     <div class="container">
         <div class="painel">
             <div class="cabecalho">
-                <h1 class="titulo">RPG Web — Aventura em PHP</h1>
+                <h1 class="titulo">As Cinzas da Aurora</h1>
             </div>
 
             <div class="abas">
@@ -373,6 +356,9 @@ unset($_SESSION['ultimoResultado']);
                                             <span>
                                                 <strong><?= htmlspecialchars($opcao['titulo']) ?></strong>
                                                 <?= htmlspecialchars($opcao['descricao']) ?>
+                                                <?php if (!empty($opcao['fatal'])): ?>
+                                                    <br><small>Escolha fatal: encerra a aventura imediatamente.</small>
+                                                <?php endif; ?>
                                             </span>
                                         </label>
                                     </div>
@@ -392,6 +378,9 @@ unset($_SESSION['ultimoResultado']);
                             <div class="resultado">
                                 <strong><?= htmlspecialchars($ultimoResultado['opcao'] ?? 'Ação') ?></strong><br>
                                 <?= htmlspecialchars($ultimoResultado['mensagem']) ?>
+                                <?php if (isset($ultimoResultado['chanceSucesso'])): ?>
+                                    <br><small>Chance de sucesso: <?= (int) round($ultimoResultado['chanceSucesso'] * 100) ?>% | risco de falha: <?= (int) round($ultimoResultado['chanceDerrota'] * 100) ?>%</small>
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     </div>
