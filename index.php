@@ -491,19 +491,19 @@ unset($_SESSION['ultimoResultado']);
                                 <strong>Guerreiro</strong><br>
                                 Mais vida e força bruta
                             </label>
-                            <label class="hero-card" style="background-image: url('<?= htmlspecialchars($pastaDoJogo . '/images/ponte.jpg', ENT_QUOTES, 'UTF-8') ?>');">
+                            <label class="hero-card" style="background-image: url('<?= htmlspecialchars($pastaDoJogo . '/images/arqueiro.jpg', ENT_QUOTES, 'UTF-8') ?>');">
                                 <input type="radio" name="heroi" value="arqueiro">
                                 <span class="hero-icon" aria-hidden="true">➶</span>
                                 <strong>Arqueiro</strong><br>
                                 Agilidade e precisão
                             </label>
-                            <label class="hero-card" style="background-image: url('<?= htmlspecialchars($pastaDoJogo . '/images/portal.jpg', ENT_QUOTES, 'UTF-8') ?>');">
+                            <label class="hero-card" style="background-image: url('<?= htmlspecialchars($pastaDoJogo . '/images/mago.jpg', ENT_QUOTES, 'UTF-8') ?>');">
                                 <input type="radio" name="heroi" value="mago">
                                 <span class="hero-icon" aria-hidden="true">✦</span>
                                 <strong>Mago</strong><br>
                                 Energia e magia intensa
                             </label>
-                            <label class="hero-card" style="background-image: url('<?= htmlspecialchars($pastaDoJogo . '/images/mina.jpg', ENT_QUOTES, 'UTF-8') ?>');">
+                            <label class="hero-card" style="background-image: url('<?= htmlspecialchars($pastaDoJogo . '/images/ladino.jpg', ENT_QUOTES, 'UTF-8') ?>');">
                                 <input type="radio" name="heroi" value="ladino">
                                 <span class="hero-icon" aria-hidden="true">◈</span>
                                 <strong>Ladino</strong><br>
