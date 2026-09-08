@@ -485,7 +485,7 @@ unset($_SESSION['ultimoResultado']);
                     <div>
                         <label>Escolha seu herói</label>
                         <div class="grid-heroes">
-                            <label class="hero-card" style="background-image: url('<?= htmlspecialchars($pastaDoJogo . '/images/castelo.jpg', ENT_QUOTES, 'UTF-8') ?>');">
+                            <label class="hero-card" style="background-image: url('<?= htmlspecialchars($pastaDoJogo . '/images/guerreiro.jpg', ENT_QUOTES, 'UTF-8') ?>');">
                                 <input type="radio" name="heroi" value="guerreiro" checked>
                                 <span class="hero-icon" aria-hidden="true">⚔</span>
                                 <strong>Guerreiro</strong><br>
