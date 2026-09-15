@@ -151,4 +151,80 @@ foreach ($game->getCenas() as $cena) {
     }
 }
 
+$agil = new Game([
+    'personagem' => [
+        'nome' => 'Agil',
+        'vida' => 100,
+        'energia' => 30,
+        'pontos' => 0,
+        'atributos' => [
+            'agilidade' => 90,
+            'forca' => 30,
+            'resistencia' => 40,
+            'inteligencia' => 35,
+            'sorte' => 50,
+        ],
+    ],
+    'cenaAtual' => 'bosque',
+]);
+$fraco = new Game([
+    'personagem' => [
+        'nome' => 'Lento',
+        'vida' => 100,
+        'energia' => 30,
+        'pontos' => 0,
+        'atributos' => [
+            'agilidade' => 15,
+            'forca' => 30,
+            'resistencia' => 40,
+            'inteligencia' => 35,
+            'sorte' => 50,
+        ],
+    ],
+    'cenaAtual' => 'bosque',
+]);
+$chanceAgil = $ajustar->invoke($agil, 0.60, 'bosque');
+$chanceLento = $ajustar->invoke($fraco, 0.60, 'bosque');
+if ($chanceAgil <= $chanceLento) {
+    throw new RuntimeException('Personagens mais ágeis devem receber vantagem real nas chances de sucesso.');
+}
+
+$resistente = new Game([
+    'personagem' => [
+        'nome' => 'Resistente',
+        'vida' => 100,
+        'energia' => 30,
+        'pontos' => 0,
+        'atributos' => [
+            'agilidade' => 40,
+            'forca' => 30,
+            'resistencia' => 95,
+            'inteligencia' => 35,
+            'sorte' => 50,
+        ],
+    ],
+    'cenaAtual' => 'rio',
+]);
+$fracoResistencia = new Game([
+    'personagem' => [
+        'nome' => 'Fraco',
+        'vida' => 100,
+        'energia' => 30,
+        'pontos' => 0,
+        'atributos' => [
+            'agilidade' => 40,
+            'forca' => 30,
+            'resistencia' => 20,
+            'inteligencia' => 35,
+            'sorte' => 50,
+        ],
+    ],
+    'cenaAtual' => 'rio',
+]);
+$chanceResistente = $ajustar->invoke($resistente, 0.45, 'rio');
+$chanceFracoResistencia = $ajustar->invoke($fracoResistencia, 0.45, 'rio');
+if ($chanceResistente <= $chanceFracoResistencia) {
+    throw new RuntimeException('Resistência deve melhorar a chance em desafios físicos e perigosos.');
+}
+
 print "OK\n";

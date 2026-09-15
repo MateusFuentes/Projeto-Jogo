@@ -49,6 +49,42 @@ class Game
         return $this->cenas;
     }
 
+    private function atributoPrincipalDaCena(string $cenaId): ?string
+    {
+        return match ($cenaId) {
+            'inicio', 'templo', 'caverna' => 'inteligencia',
+            'bosque', 'ponte' => 'agilidade',
+            'rio', 'vila', 'mina' => 'resistencia',
+            'castelo', 'portal' => 'forca',
+            'vitoria', 'derrota' => null,
+            default => null,
+        };
+    }
+
+    private function bonusPorAtributos(string $cenaId): float
+    {
+        $atributos = $this->personagem->getAtributos();
+        $principal = $this->atributoPrincipalDaCena($cenaId);
+        $bonus = 0.0;
+
+        if ($principal !== null) {
+            $valorPrincipal = (float) ($atributos[$principal] ?? 50);
+            $bonus += ($valorPrincipal - 50) / 180;
+        }
+
+        $bonus += (($atributos['sorte'] ?? 50) - 50) / 220;
+
+        foreach (['forca', 'agilidade', 'resistencia', 'inteligencia'] as $atributo) {
+            if ($atributo === $principal) {
+                continue;
+            }
+
+            $bonus += (($atributos[$atributo] ?? 50) - 50) / 300;
+        }
+
+        return $bonus;
+    }
+
     private function ajustarChanceSucesso(float $chanceBase, string $cenaId): float
     {
         $chance = max(0.50, min(0.75, $chanceBase - 0.02));
@@ -64,6 +100,8 @@ class Game
         if (in_array($cenaId, ['portal', 'castelo', 'caverna', 'mina'], true)) {
             $chance -= 0.10;
         }
+
+        $chance += $this->bonusPorAtributos($cenaId);
 
         if ($cenaId === 'vitoria' || $cenaId === 'derrota') {
             $chance = 0.45;
@@ -154,7 +192,7 @@ class Game
                 array_pop($this->historico);
             }
 
-            $deveRetornar = random_int(1, 100) <= 30;
+            $deveRetornar = random_int(1, 100) <= 70;
 
             if (!empty($this->historico) && $deveRetornar) {
                 $this->cenaAtual = array_pop($this->historico);
