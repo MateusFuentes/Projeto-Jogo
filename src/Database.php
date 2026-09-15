@@ -20,14 +20,14 @@ try {
     $erro=$e->getMessage();
     echo $erro;
 }
-/*$this->arquivo = $arquivo;
+$this->arquivo = $arquivo;
         $diretorio = dirname($this->arquivo);
         $this->arquivoCsv = $diretorio . '/placar.csv';
 
         if (!is_dir($diretorio)) {
             mkdir($diretorio, 0777, true);
         }
-
+/*
         $this->pdo = new PDO('sqlite:' . $this->arquivo);
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->criarTabela();*/
