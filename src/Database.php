@@ -8,7 +8,19 @@ class Database
 
     public function __construct(string $arquivo = __DIR__ . '/../data/placar.db')
     {
-        $this->arquivo = $arquivo;
+        $servername='localhost';
+$username='root';
+$senha='';
+$db="aw2_2";
+$erro="null";
+try {
+    $this->pdo=new PDO("mysql:host=$servername;dbname=$db",$username,$senha);
+    $this->pdo->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    $erro=$e->getMessage();
+    echo $erro;
+}
+/*$this->arquivo = $arquivo;
         $diretorio = dirname($this->arquivo);
         $this->arquivoCsv = $diretorio . '/placar.csv';
 
@@ -18,7 +30,7 @@ class Database
 
         $this->pdo = new PDO('sqlite:' . $this->arquivo);
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $this->criarTabela();
+        $this->criarTabela();*/
         $this->criarArquivoCsvSeNecessario();
     }
 
