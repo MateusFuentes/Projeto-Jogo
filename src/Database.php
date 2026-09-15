@@ -93,6 +93,7 @@ $this->arquivo = $arquivo;
     public function lerTodos(): array
     {
         $stmt = $this->pdo->prepare('SELECT nome, pontos, vida, energia, data FROM placar ORDER BY pontos DESC, id DESC LIMIT 10');
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
