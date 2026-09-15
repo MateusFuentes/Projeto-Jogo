@@ -34,10 +34,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $perfil = [
-            'guerreiro' => ['vida' => 110, 'energia' => 25, 'pontos' => 0],
-            'arqueiro'  => ['vida' => 90,  'energia' => 35, 'pontos' => 5],
-            'mago'      => ['vida' => 80,  'energia' => 45, 'pontos' => 10],
-            'ladino'    => ['vida' => 95,  'energia' => 32, 'pontos' => 15],
+            'guerreiro' => [
+                'vida' => 110,
+                'energia' => 25,
+                'pontos' => 0,
+                'atributos' => ['agilidade' => 40, 'forca' => 88, 'resistencia' => 90, 'inteligencia' => 45, 'sorte' => 50],
+            ],
+            'arqueiro' => [
+                'vida' => 90,
+                'energia' => 35,
+                'pontos' => 5,
+                'atributos' => ['agilidade' => 92, 'forca' => 52, 'resistencia' => 58, 'inteligencia' => 64, 'sorte' => 70],
+            ],
+            'mago' => [
+                'vida' => 80,
+                'energia' => 45,
+                'pontos' => 10,
+                'atributos' => ['agilidade' => 48, 'forca' => 35, 'resistencia' => 50, 'inteligencia' => 92, 'sorte' => 66],
+            ],
+            'ladino' => [
+                'vida' => 95,
+                'energia' => 32,
+                'pontos' => 15,
+                'atributos' => ['agilidade' => 88, 'forca' => 54, 'resistencia' => 60, 'inteligencia' => 72, 'sorte' => 90],
+            ],
         ];
 
         $dadosHeroi = $perfil[$heroSelecionado] ?? $perfil['guerreiro'];
@@ -50,6 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'vida'    => $dadosHeroi['vida'],
                 'energia' => $dadosHeroi['energia'],
                 'pontos'  => $dadosHeroi['pontos'],
+                'atributos' => $dadosHeroi['atributos'],
             ],
             'cenaAtual' => 'inicio',
         ];
@@ -520,6 +541,11 @@ unset($_SESSION['ultimoResultado']);
                     <div class="badge">Vida: <?= $game->getPersonagem()->getVida() ?></div>
                     <div class="badge">Energia: <?= $game->getPersonagem()->getEnergia() ?></div>
                     <div class="badge">Pontos: <?= $game->getPersonagem()->getPontos() ?></div>
+                    <div class="badge">Agilidade: <?= $game->getPersonagem()->getAtributo('agilidade') ?></div>
+                    <div class="badge">Força: <?= $game->getPersonagem()->getAtributo('forca') ?></div>
+                    <div class="badge">Resistência: <?= $game->getPersonagem()->getAtributo('resistencia') ?></div>
+                    <div class="badge">Inteligência: <?= $game->getPersonagem()->getAtributo('inteligencia') ?></div>
+                    <div class="badge">Sorte: <?= $game->getPersonagem()->getAtributo('sorte') ?></div>
                     <div class="badge">Cena: <?= htmlspecialchars($cena->getTitulo()) ?></div>
                 </div>
 
