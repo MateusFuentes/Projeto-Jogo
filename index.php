@@ -238,6 +238,137 @@ unset($_SESSION['ultimoResultado']);
             background-position: center;
             border: 1px solid rgba(255, 224, 154, 0.38);
             box-shadow: 0 20px 38px rgba(0, 0, 0, 0.32);
+            isolation: isolate;
+            overflow: hidden;
+            animation: entrada-cena 900ms ease both;
+        }
+        .imagem::before {
+            content: "";
+            position: absolute;
+            inset: -12%;
+            z-index: -1;
+            background: inherit;
+            background-size: cover;
+            background-position: center;
+            animation: movimento-cena 14s ease-in-out infinite alternate;
+        }
+        .efeitos-cena {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .efeitos-cena::before,
+        .efeitos-cena::after,
+        .efeito {
+            content: "";
+            position: absolute;
+            display: block;
+            border-radius: 50%;
+        }
+        .efeitos-cena::before {
+            width: 42%;
+            height: 42%;
+            top: 15%;
+            left: 28%;
+            background: rgba(255, 221, 145, 0.16);
+            filter: blur(22px);
+            animation: pulsar-luz 4s ease-in-out infinite;
+        }
+        .efeitos-cena::after {
+            width: 160%;
+            height: 48%;
+            left: -30%;
+            bottom: -20%;
+            background: rgba(8, 14, 21, 0.42);
+            filter: blur(18px);
+            animation: deriva-sombra 9s ease-in-out infinite alternate;
+        }
+        .cena-bosque .efeito,
+        .cena-caverna .efeito,
+        .cena-rio .efeito {
+            width: 28%;
+            height: 18%;
+            left: -30%;
+            bottom: 12%;
+            background: rgba(220, 235, 224, 0.15);
+            filter: blur(18px);
+            animation: deriva-nevoa 10s linear infinite;
+        }
+        .cena-bosque .efeito:nth-child(2),
+        .cena-caverna .efeito:nth-child(2),
+        .cena-rio .efeito:nth-child(2) {
+            bottom: 34%;
+            animation-delay: -4s;
+        }
+        .cena-portal .efeitos-cena::before {
+            width: 55%;
+            height: 55%;
+            top: 10%;
+            left: 22%;
+            background: rgba(244, 75, 57, 0.25);
+            animation: pulsar-portal 2.2s ease-in-out infinite;
+        }
+        .cena-vitoria .efeito,
+        .cena-portal .efeito {
+            width: 7px;
+            height: 7px;
+            top: 75%;
+            left: 20%;
+            background: var(--gold-light);
+            box-shadow: 0 0 12px var(--gold-light);
+            animation: faisca 3.6s linear infinite;
+        }
+        .cena-vitoria .efeito:nth-child(2),
+        .cena-portal .efeito:nth-child(2) { left: 54%; animation-delay: -1.8s; }
+        .cena-vitoria .efeito:nth-child(3),
+        .cena-portal .efeito:nth-child(3) { left: 78%; animation-delay: -2.7s; }
+        .cena-derrota .efeito {
+            width: 3px;
+            height: 20px;
+            top: -10%;
+            left: 18%;
+            border-radius: 0;
+            background: rgba(190, 203, 210, 0.48);
+            transform: rotate(18deg);
+            animation: cinza 3s linear infinite;
+        }
+        .cena-derrota .efeito:nth-child(2) { left: 52%; animation-delay: -1s; }
+        .cena-derrota .efeito:nth-child(3) { left: 83%; animation-delay: -2.1s; }
+        @keyframes entrada-cena {
+            from { opacity: 0; transform: scale(1.025); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes movimento-cena {
+            from { transform: scale(1); }
+            to { transform: scale(1.06) translate3d(1%, -1%, 0); }
+        }
+        @keyframes pulsar-luz {
+            0%, 100% { opacity: 0.35; transform: scale(0.8); }
+            50% { opacity: 0.9; transform: scale(1.15); }
+        }
+        @keyframes pulsar-portal {
+            0%, 100% { opacity: 0.25; transform: scale(0.75); }
+            50% { opacity: 0.95; transform: scale(1.18); }
+        }
+        @keyframes deriva-sombra {
+            from { transform: translateX(-6%); }
+            to { transform: translateX(12%); }
+        }
+        @keyframes deriva-nevoa {
+            from { transform: translateX(0) scale(0.85); opacity: 0; }
+            25% { opacity: 0.8; }
+            to { transform: translateX(500%) scale(1.5); opacity: 0; }
+        }
+        @keyframes faisca {
+            from { transform: translateY(30px) scale(0.5); opacity: 0; }
+            25% { opacity: 1; }
+            to { transform: translateY(-280px) translateX(35px) scale(1.2); opacity: 0; }
+        }
+        @keyframes cinza {
+            from { transform: translate3d(0, 0, 0) rotate(18deg); opacity: 0; }
+            20% { opacity: 0.7; }
+            to { transform: translate3d(120px, 460px, 0) rotate(18deg); opacity: 0; }
         }
         .imagem::after {
             content: "CENA ATUAL";
@@ -551,9 +682,14 @@ unset($_SESSION['ultimoResultado']);
 
                 <div class="conteudo">
                     <div>
-                        <div class="imagem"
+                        <div class="imagem cena-<?= htmlspecialchars($cena->getId(), ENT_QUOTES, 'UTF-8') ?>"
                              title="<?= htmlspecialchars($cena->getTitulo()) ?>"
                              style="background-image: linear-gradient(rgba(32,22,15,0.38), rgba(32,22,15,0.55)), url('<?= htmlspecialchars($imagemFundo, ENT_QUOTES, 'UTF-8') ?>');">
+                            <div class="efeitos-cena" aria-hidden="true">
+                                <span class="efeito"></span>
+                                <span class="efeito"></span>
+                                <span class="efeito"></span>
+                            </div>
                         </div>
 
                         <h2><?= htmlspecialchars($cena->getTitulo()) ?></h2>
